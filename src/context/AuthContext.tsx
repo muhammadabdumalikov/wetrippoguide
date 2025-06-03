@@ -26,6 +26,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
   const logout = () => {
     clearStorage();
+    setTimeout(() => {
+      const token = getItem(StorageKeys.ACCESS_TOKEN);
+      console.log('Access token after logout:', token);
+    }, 100);
     setIsAuthenticated(false);
   };
 

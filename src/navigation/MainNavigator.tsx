@@ -1,9 +1,10 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import {theme} from '../theme/theme';
 import HomeScreen from '../screens/main/HomeScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import CreateTourScreen from '../screens/main/CreateTourScreen';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {theme} from '../theme/theme';
 
 const Tab = createBottomTabNavigator();
 
@@ -11,22 +12,31 @@ const MainNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textSecondary,
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: theme.colors.background,
-          borderTopWidth: 1,
-          borderTopColor: theme.colors.border,
+          paddingTop: 5,
         },
-        headerShown: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
       }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Icon name="home" size={size} color={color} />
+            <AntDesign name="home" size={size} color={color} />
           ),
+        }}
+      />
+      <Tab.Screen
+        name="CreateTour"
+        component={CreateTourScreen}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <AntDesign name="pluscircle" size={size} color={color} />
+          ),
+          tabBarLabel: 'Create Tour',
         }}
       />
       <Tab.Screen
@@ -34,7 +44,7 @@ const MainNavigator = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <Icon name="person" size={size} color={color} />
+            <AntDesign name="user" size={size} color={color} />
           ),
         }}
       />

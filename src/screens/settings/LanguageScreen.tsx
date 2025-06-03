@@ -1,73 +1,65 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
-import {Text, ListItem, Radio} from 'react-native-elements';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../../theme/theme';
+import {useTranslation} from 'react-i18next';
+import {useLanguage} from '../../localization/LanguageContext';
+import {SettingsStackParamList} from '../../navigation/types';
 
-interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-}
-
-const languages: Language[] = [
-  {code: 'en', name: 'English', nativeName: 'English'},
-  {code: 'es', name: 'Spanish', nativeName: 'Español'},
-  {code: 'fr', name: 'French', nativeName: 'Français'},
-  {code: 'de', name: 'German', nativeName: 'Deutsch'},
-  {code: 'it', name: 'Italian', nativeName: 'Italiano'},
-  {code: 'pt', name: 'Portuguese', nativeName: 'Português'},
-  {code: 'ru', name: 'Russian', nativeName: 'Русский'},
-  {code: 'zh', name: 'Chinese', nativeName: '中文'},
-  {code: 'ja', name: 'Japanese', nativeName: '日本語'},
-  {code: 'ko', name: 'Korean', nativeName: '한국어'},
-];
+type LanguageScreenNavigationProp = NativeStackNavigationProp<
+  SettingsStackParamList,
+  'Language'
+>;
 
 const LanguageScreen = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const navigation = useNavigation<LanguageScreenNavigationProp>();
+  const {t} = useTranslation();
+  const {currentLanguage} = useLanguage();
 
-  const handleLanguageSelect = (code: string) => {
-    setSelectedLanguage(code);
-    // TODO: Implement language change logic
+  const getLanguageName = (code: string) => {
+    switch (code) {
+      case 'en':
+        return 'English';
+      case 'uz':
+        return 'O\'zbekcha';
+      case 'ru':
+        return 'Русский';
+      default:
+        return 'English';
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Select Language</Text>
-          {languages.map(language => (
-            <ListItem
-              key={language.code}
-              containerStyle={styles.listItem}
-              onPress={() => handleLanguageSelect(language.code)}>
-              <Icon name="language" size={24} color={theme.colors.primary} />
-              <ListItem.Content>
-                <ListItem.Title style={styles.listItemTitle}>
-                  {language.name}
-                </ListItem.Title>
-                <ListItem.Subtitle style={styles.listItemSubtitle}>
-                  {language.nativeName}
-                </ListItem.Subtitle>
-              </ListItem.Content>
-              <Radio
-                checked={selectedLanguage === language.code}
-                onPress={() => handleLanguageSelect(language.code)}
-                checkedColor={theme.colors.primary}
-              />
-            </ListItem>
-          ))}
-        </View>
-
-        <View style={styles.infoSection}>
-          <Icon name="info" size={24} color={theme.colors.primary} />
-          <Text style={styles.infoText}>
-            Changing the language will update the app's interface language. Some
-            content may still appear in the original language.
-          </Text>
-        </View>
-      </ScrollView>
+      <View style={styles.content}>
+        <TouchableOpacity
+          style={styles.languageButton}
+          onPress={() => navigation.navigate('LanguageSettings')}>
+          <View style={styles.languageInfo}>
+            <Icon name="translate" size={24} color={theme.colors.primary} />
+            <View style={styles.textContainer}>
+              <Text style={styles.title}>{t('settings.language')}</Text>
+              <Text style={styles.subtitle}>
+                {getLanguageName(currentLanguage)}
+              </Text>
+            </View>
+          </View>
+          <Icon
+            name="chevron-right"
+            size={24}
+            color={theme.colors.textSecondary}
+          />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -77,40 +69,45 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  section: {
-    marginBottom: theme.spacing.xl,
+  content: {
+    flex: 1,
+    padding: theme.spacing.lg,
   },
-  sectionTitle: {
-    ...theme.typography.h3,
-    color: theme.colors.text,
-    paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-  },
-  listItem: {
-    backgroundColor: 'transparent',
-    paddingVertical: theme.spacing.sm,
-  },
-  listItemTitle: {
-    ...theme.typography.body,
-    color: theme.colors.text,
-  },
-  listItemSubtitle: {
-    ...theme.typography.caption,
-    color: theme.colors.textSecondary,
-  },
-  infoSection: {
+  languageButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: theme.colors.surface,
     padding: theme.spacing.lg,
-    backgroundColor: theme.colors.primaryLight,
-    margin: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.lg,
+    ...Platform.select({
+      ios: {
+        shadowColor: theme.colors.shadow,
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
-  infoText: {
-    ...theme.typography.caption,
-    color: theme.colors.text,
+  languageInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  textContainer: {
     marginLeft: theme.spacing.md,
-    flex: 1,
+  },
+  title: {
+    ...theme.typography.body,
+    color: theme.colors.text,
+    fontWeight: '600',
+  },
+  subtitle: {
+    ...theme.typography.caption,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
   },
 });
 

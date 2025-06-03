@@ -1,24 +1,31 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
+import { SettingsStackParamList } from './types';
 
 export type RootStackParamList = {
-  Auth: undefined;
   Main: undefined;
   SignIn: undefined;
   SignUp: undefined;
-};
-
-export type AuthStackParamList = {
-  SignIn: undefined;
-  SignUp: undefined;
-};
-
-export type MainTabParamList = {
-  Home: undefined;
-  Profile: undefined;
+  Notifications: undefined;
+  Security: undefined;
+  Language: undefined;
+  LanguageSettings: undefined;
 };
 
 export type SettingsStackParamList = {
   Notifications: undefined;
   Security: undefined;
   Language: undefined;
+  LanguageSettings: undefined;
+};
+
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+};
+
+export type MainStackParamList = {
+  Home: undefined;
+  Profile: undefined;
+  CreateTour: undefined;
 }; 

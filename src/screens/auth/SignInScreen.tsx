@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Input, Button, Text} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {theme} from '../../theme/theme';
 import {authApi} from '../../services/api';
 import {setItem, StorageKeys} from '../../utils/storage';
@@ -105,7 +105,7 @@ const SignInScreen = () => {
               autoCapitalize="none"
               keyboardType="default"
               leftIcon={
-                <Icon name="person" size={24} color={theme.colors.primary} />
+                <AntDesign name="user" size={24} color={theme.colors.primary} />
               }
               inputContainerStyle={styles.input}
               inputStyle={styles.inputText}
@@ -119,7 +119,7 @@ const SignInScreen = () => {
               onChangeText={setPassword}
               secureTextEntry
               leftIcon={
-                <Icon name="lock" size={24} color={theme.colors.primary} />
+                <AntDesign name="lock" size={24} color={theme.colors.primary} />
               }
               inputContainerStyle={styles.input}
               inputStyle={styles.inputText}

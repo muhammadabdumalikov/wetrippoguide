@@ -24,4 +24,4 @@ export const removeItem = (key: string) => {
 
 export const clearStorage = () => {
   storage.clearAll();
-}; 
+};

@@ -2,16 +2,21 @@ import { TextStyle } from 'react-native';
 
 export const theme = {
   colors: {
-    primary: '#6C63FF', // Modern purple
-    secondary: '#4ECDC4', // Fresh teal
-    background: '#FFFFFF',
-    surface: '#F8F9FA',
-    text: '#2D3436',
-    textSecondary: '#636E72',
+    primary: '#4F6EF7', // Soft blue accent
+    secondary: '#F7B500', // Orange for main action
+    background: '#F7F7F7', // Light gray background
+    surface: '#FFFFFF', // Card background
+    text: '#222B45', // Main text
+    textSecondary: '#8F9BB3', // Secondary text
     error: '#FF6B6B',
     success: '#00B894',
-    border: '#DFE6E9',
-    inputBackground: '#F1F3F4',
+    border: '#E4E9F2', // Subtle gray border
+    inputBackground: '#F7F9FC', // Input field background
+    errorLight: '#FFEAEA',
+    shadow: '#000000',
+    white: '#FFFFFF',
+    lightGray: '#eeeeee',
+    darkGray: '#bbbbbb',
   },
   spacing: {
     xs: 4,
@@ -47,6 +52,7 @@ export const theme = {
     md: 12,
     lg: 16,
     xl: 24,
+    circle: 9999,
   },
   shadows: {
     small: {
@@ -55,9 +61,9 @@ export const theme = {
         width: 0,
         height: 2,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 2,
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 1,
     },
     medium: {
       shadowColor: '#000',
@@ -65,9 +71,9 @@ export const theme = {
         width: 0,
         height: 4,
       },
-      shadowOpacity: 0.15,
-      shadowRadius: 6,
-      elevation: 4,
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 2,
     },
   },
 }; 

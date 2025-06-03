@@ -1,157 +1,81 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView, Dimensions} from 'react-native';
-import {Text, Card, Button} from 'react-native-elements';
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import {Text} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {theme} from '../../theme/theme';
-import {LineChart, BarChart} from 'react-native-chart-kit';
+import TourCard from './TourCard';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const StatCard = ({
-  title,
-  value,
-  icon,
-}: {
+const {width} = Dimensions.get('window');
+const CARD_WIDTH = width - theme.spacing.lg * 2;
+
+interface Tour {
+  id: string;
   title: string;
-  value: string;
-  icon: string;
-}) => (
-  <Card containerStyle={styles.statCard}>
-    <View style={styles.statContent}>
-      <View style={styles.statIconContainer}>
-        <Icon name={icon} size={24} color={theme.colors.primary} />
-      </View>
-      <View style={styles.statTextContainer}>
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statTitle}>{title}</Text>
-      </View>
-    </View>
-  </Card>
-);
+  destination: string;
+  startDate: string;
+  endDate: string;
+  totalSpots: number;
+  availableSpots: number;
+  price: number;
+  status: 'ongoing' | 'upcoming' | 'completed';
+  image: string;
+}
 
-const TimeFilter = ({
-  selected,
-  onSelect,
-}: {
-  selected: string;
-  onSelect: (filter: string) => void;
-}) => (
-  <View style={styles.filterContainer}>
-    {['Today', 'Week', 'Month', 'Year'].map(filter => (
-      <Button
-        key={filter}
-        title={filter}
-        type={selected === filter ? 'solid' : 'outline'}
-        buttonStyle={[
-          styles.filterButton,
-          selected === filter && styles.filterButtonActive,
-        ]}
-        titleStyle={[
-          styles.filterButtonText,
-          selected === filter && styles.filterButtonTextActive,
-        ]}
-        onPress={() => onSelect(filter)}
-      />
-    ))}
-  </View>
-);
+const mockTours: Tour[] = [
+  {
+    id: '1',
+    title: 'Summer Adventure in Bali',
+    destination: 'Bali, Indonesia',
+    startDate: '2024-06-15T14:30:00',
+    endDate: '2024-06-22',
+    totalSpots: 20,
+    availableSpots: 5,
+    price: 1299,
+    status: 'ongoing',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
+  },
+  {
+    id: '2',
+    title: 'European Explorer',
+    destination: 'Paris, France',
+    startDate: '2024-07-01T09:00:00',
+    endDate: '2024-07-10',
+    totalSpots: 15,
+    availableSpots: 3,
+    price: 2499,
+    status: 'ongoing',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
+  },
+];
+
+const fabColor = '#2979ff';
 
 const HomeScreen = () => {
-  const [timeFilter, setTimeFilter] = useState('Week');
-  const screenWidth = Dimensions.get('window').width;
-
-  const revenueData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        data: [2000, 4500, 2800, 8000, 9900, 4300, 5000],
-      },
-    ],
-  };
-
-  const bookingsData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        data: [20, 45, 28, 80, 99, 43, 50],
-      },
-    ],
-  };
-
-  const chartConfig = {
-    backgroundGradientFrom: theme.colors.background,
-    backgroundGradientTo: theme.colors.background,
-    color: (opacity = 1) => theme.colors.primary,
-    strokeWidth: 2,
-    barPercentage: 0.5,
-    useShadowColorFromDataset: false,
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.header}>
-          <Text style={styles.welcomeText}>Welcome Back!</Text>
-          <Text style={styles.dateText}>
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-        </View>
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Ongoing Tours</Text>
+      </View>
 
-        <TimeFilter selected={timeFilter} onSelect={setTimeFilter} />
-
-        <View style={styles.statsContainer}>
-          <StatCard title="Total Users" value="1,234" icon="people" />
-          <StatCard title="Active Tours" value="56" icon="map" />
-          <StatCard title="Revenue" value="$12,345" icon="attach-money" />
-          <StatCard title="Bookings" value="89" icon="event" />
-        </View>
-
-        <Card containerStyle={styles.chartCard}>
-          <Card.Title style={styles.cardTitle}>Revenue Overview</Card.Title>
-          <LineChart
-            data={revenueData}
-            width={screenWidth - 40}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-          />
-        </Card>
-
-        <Card containerStyle={styles.chartCard}>
-          <Card.Title style={styles.cardTitle}>Bookings Overview</Card.Title>
-          <BarChart
-            data={bookingsData}
-            width={screenWidth - 40}
-            height={220}
-            chartConfig={chartConfig}
-            style={styles.chart}
-          />
-        </Card>
-
-        <Card containerStyle={styles.recentActivityCard}>
-          <Card.Title style={styles.cardTitle}>Recent Activity</Card.Title>
-          <View style={styles.activityList}>
-            {[1, 2, 3].map(item => (
-              <View key={item} style={styles.activityItem}>
-                <Icon
-                  name="notifications"
-                  size={20}
-                  color={theme.colors.primary}
-                />
-                <View style={styles.activityTextContainer}>
-                  <Text style={styles.activityTitle}>New booking received</Text>
-                  <Text style={styles.activityTime}>2 hours ago</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </Card>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
+        {mockTours.map(tour => (
+          <TourCard key={tour.id} tour={tour} />
+        ))}
       </ScrollView>
+
+      <TouchableOpacity style={[styles.fab, {backgroundColor: fabColor}]}>
+        <FontAwesome name="globe" size={28} color={'#fff'} />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -162,111 +86,142 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    padding: theme.spacing.lg,
-  },
-  welcomeText: {
-    ...theme.typography.h1,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  dateText: {
-    ...theme.typography.body,
-    color: theme.colors.textSecondary,
-  },
-  filterContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-  },
-  filterButton: {
-    marginRight: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-  },
-  filterButtonActive: {
-    backgroundColor: theme.colors.primary,
-  },
-  filterButtonText: {
-    color: theme.colors.primary,
-    fontSize: 14,
-  },
-  filterButtonTextActive: {
-    color: theme.colors.white,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: theme.spacing.sm,
-  },
-  statCard: {
-    width: '45%',
-    margin: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    ...theme.shadows.small,
-  },
-  statContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colors.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: theme.spacing.sm,
-  },
-  statTextContainer: {
-    flex: 1,
-  },
-  statValue: {
-    ...theme.typography.h2,
-    color: theme.colors.text,
-  },
-  statTitle: {
-    ...theme.typography.caption,
-    color: theme.colors.textSecondary,
-  },
-  chartCard: {
-    margin: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    ...theme.shadows.small,
-  },
-  chart: {
-    marginVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-  },
-  recentActivityCard: {
-    margin: theme.spacing.lg,
-    borderRadius: theme.borderRadius.md,
-    ...theme.shadows.small,
-  },
-  cardTitle: {
-    ...theme.typography.h3,
-    color: theme.colors.text,
-  },
-  activityList: {
-    marginTop: theme.spacing.md,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  activityTextContainer: {
-    marginLeft: theme.spacing.sm,
-    flex: 1,
-  },
-  activityTitle: {
-    ...theme.typography.body,
+  headerTitle: {
+    ...theme.typography.h1,
     color: theme.colors.text,
   },
-  activityTime: {
-    ...theme.typography.caption,
-    color: theme.colors.textSecondary,
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: theme.spacing.lg,
+  },
+  card: {
+    width: CARD_WIDTH,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    overflow: 'hidden',
+    padding: 0,
+    shadowColor: 'transparent',
+    elevation: 0,
+  },
+  imageContainer: {
+    width: '100%',
+    aspectRatio: 1.3,
+    borderRadius: 20,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
+    resizeMode: 'cover',
+  },
+  cardContent: {
+    paddingHorizontal: 10,
+    paddingTop: 16,
+    paddingBottom: 18,
+    backgroundColor: '#fff',
+  },
+  tourInfo: {
+    marginBottom: 16,
+    gap: 8,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    color: '#8A8A8A',
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  title: {
+    color: '#222',
+    fontWeight: '700',
+    fontSize: 22,
+    marginBottom: 16,
+    textAlign: 'left',
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 0,
+    gap: 10,
+  },
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginRight: 10,
+  },
+  ratingText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginLeft: 4,
+    fontSize: 15,
+  },
+  priceText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginRight: 4,
+  },
+  perPerson: {
+    color: '#8A8A8A',
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E5E5',
+    marginVertical: theme.spacing.md,
+    width: CARD_WIDTH,
+  },
+  infoBadgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  infoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginRight: 8,
+  },
+  infoBadgeText: {
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
   },
 });
 

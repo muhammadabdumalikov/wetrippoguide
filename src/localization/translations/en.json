@@ -1,0 +1,48 @@
+{
+  "common": {
+    "createTour": "Create New Tour",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "done": "Done"
+  },
+  "tour": {
+    "basicInfo": "Basic Information",
+    "title": "Title",
+    "description": "Description",
+    "pricing": "Pricing",
+    "price": "Price",
+    "salePrice": "Sale Price",
+    "schedule": "Tour Schedule",
+    "tourDate": "Tour Date",
+    "selectDate": "Select tour date",
+    "seats": "Number of Seats",
+    "routePoints": "Route Points",
+    "addPoint": "Add Point",
+    "point": "Point",
+    "pointTitle": "Point Title",
+    "pointDescription": "Point Description",
+    "whatsIncluded": "What's Included",
+    "addItem": "Add Item",
+    "item": "Item",
+    "images": "Tour Images",
+    "uploadImages": "Upload Images"
+  },
+  "settings": {
+    "language": "Language",
+    "selectLanguage": "Select your preferred language",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "about": "About",
+    "help": "Help & Support",
+    "logout": "Log Out"
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "invalidPrice": "Please enter a valid price",
+    "invalidSeats": "Please enter a valid number of seats",
+    "invalidDate": "Please select a valid date"
+  }
+} 

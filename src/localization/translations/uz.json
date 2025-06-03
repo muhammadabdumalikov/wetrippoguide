@@ -1,0 +1,48 @@
+{
+  "common": {
+    "createTour": "Yangi Tur Yaratish",
+    "back": "Orqaga",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "next": "Keyingi",
+    "done": "Tayyor"
+  },
+  "tour": {
+    "basicInfo": "Asosiy Ma'lumotlar",
+    "title": "Sarlavha",
+    "description": "Tavsif",
+    "pricing": "Narxlar",
+    "price": "Narx",
+    "salePrice": "Chegirma narxi",
+    "schedule": "Tur Jadvali",
+    "tourDate": "Tur Sanasi",
+    "selectDate": "Tur sanasini tanlang",
+    "seats": "O'rindiqlar soni",
+    "routePoints": "Marshrut Nuqtalari",
+    "addPoint": "Nuqta qo'shish",
+    "point": "Nuqta",
+    "pointTitle": "Nuqta sarlavhasi",
+    "pointDescription": "Nuqta tavsifi",
+    "whatsIncluded": "Nimalar kiritilgan",
+    "addItem": "Element qo'shish",
+    "item": "Element",
+    "images": "Tur Rasmlari",
+    "uploadImages": "Rasmlarni yuklash"
+  },
+  "settings": {
+    "language": "Til",
+    "selectLanguage": "O'zingizga qulay tilni tanlang",
+    "appearance": "Ko'rinish",
+    "notifications": "Bildirishnomalar",
+    "privacy": "Maxfiylik",
+    "about": "Ilova haqida",
+    "help": "Yordam va qo'llab-quvvatlash",
+    "logout": "Chiqish"
+  },
+  "validation": {
+    "required": "{{field}} to'ldirilishi shart",
+    "invalidPrice": "To'g'ri narx kiriting",
+    "invalidSeats": "To'g'ri o'rindiqlar sonini kiriting",
+    "invalidDate": "To'g'ri sana tanlang"
+  }
+} 

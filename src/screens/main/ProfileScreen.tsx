@@ -10,13 +10,19 @@ import {Text, Avatar, ListItem} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {theme} from '../../theme/theme';
-import {useNavigation, CommonActions} from '@react-navigation/native';
+import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../navigation/types';
+import {
+  RootStackParamList,
+  SettingsStackParamList,
+} from '../../navigation/types';
 import {useAuth} from '../../context/AuthContext';
+import {navigationRef} from '../../navigation/navigationRef';
 
-type ProfileScreenNavigationProp =
-  NativeStackNavigationProp<RootStackParamList>;
+type ProfileScreenNavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<RootStackParamList>,
+  NativeStackNavigationProp<SettingsStackParamList>
+>;
 
 const ProfileScreen = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -36,6 +42,17 @@ const ProfileScreen = () => {
           style: 'destructive',
           onPress: async () => {
             await logout();
+            const tryReset = () => {
+              if (navigationRef.isReady()) {
+                navigationRef.reset({
+                  index: 0,
+                  routes: [{name: 'Auth'}],
+                });
+              } else {
+                setTimeout(tryReset, 50);
+              }
+            };
+            tryReset();
           },
         },
       ],
