@@ -13,6 +13,7 @@ import {
   Dimensions,
   Pressable,
   Switch,
+  Alert,
 } from 'react-native';
 import {theme} from '../../theme/theme';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -24,6 +25,14 @@ import Modal from 'react-native-modal';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {apiRequest} from '../../utils/api';
+import {useMutation} from '@tanstack/react-query';
+
+enum FileType {
+  logo = 'logo',
+  banner = 'banner',
+  extra = 'extra',
+  main = 'main',
+}
 
 interface TourFormData {
   title: {
@@ -38,13 +47,13 @@ interface TourFormData {
   };
   status: number;
   location: number;
-  price: number;
-  sale_price: number;
+  price: string;
+  sale_price: string;
   duration: string;
   start_date: string;
   seats: number;
   files: Array<{
-    type: string;
+    type: FileType;
     url: string;
     name: string;
     size: number;
@@ -79,8 +88,8 @@ const CreateTourScreen = () => {
     description: {en: '', uz: '', ru: ''},
     status: 1,
     location: 0,
-    price: 0,
-    sale_price: 0,
+    price: '0',
+    sale_price: '0',
     duration: '',
     start_date: '',
     seats: 0,
@@ -157,21 +166,51 @@ const CreateTourScreen = () => {
           selectionLimit: 1,
           quality: 0.8,
         },
-        response => {
+        async response => {
           if (response.didCancel || response.errorCode) return;
           const asset = response.assets && response.assets[0];
           if (asset && asset.uri) {
-            const newFile = {
-              type: asset.type || 'image',
-              url: asset.uri,
-              name: asset.fileName || `image_${Date.now()}`,
-              size: asset.fileSize || 0,
-              isMain: formData.files.length === 0, // First image is main by default
-            };
-            setFormData({
-              ...formData,
-              files: [...formData.files, newFile].slice(0, MAX_IMAGES),
-            });
+            try {
+              // Create form data for file upload
+              const uploadFormData = new FormData();
+              uploadFormData.append('file', {
+                uri: asset.uri,
+                type: asset.type || 'image/jpeg',
+                name: asset.fileName || `image_${Date.now()}.jpg`,
+              });
+
+              // Upload file to server
+              const uploadResponse = await apiRequest(
+                '/file-router/simple-upload',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
+                  body: uploadFormData,
+                },
+              );
+
+              if (uploadResponse && uploadResponse.url) {
+                const newFile = {
+                  type:
+                    formData.files.length === 0
+                      ? FileType.main
+                      : FileType.extra,
+                  url: uploadResponse.url,
+                  name: uploadResponse.name,
+                  size: uploadResponse.size,
+                  isMain: formData.files.length === 0, // First image is main by default
+                };
+                setFormData(prevData => ({
+                  ...prevData,
+                  files: [...prevData.files, newFile].slice(0, MAX_IMAGES),
+                }));
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              Alert.alert('Error', 'Failed to upload image. Please try again.');
+            }
           }
         },
       );
@@ -217,6 +256,42 @@ const CreateTourScreen = () => {
     });
   };
 
+  const createTourMutation = useMutation({
+    mutationFn: async (tourData: TourFormData) => {
+      console.log(11111, tourData);
+
+      const response = await apiRequest('/admin/tour/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(tourData),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      navigation.goBack();
+    },
+    onError: (error: any) => {
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (Array.isArray(errorData.message)) {
+          Alert.alert('Validation Error', errorData.message.join('\n'), [
+            {text: 'OK'},
+          ]);
+        } else if (errorData.message) {
+          Alert.alert('Error', errorData.message, [{text: 'OK'}]);
+        } else {
+          Alert.alert('Error', 'Failed to create tour. Please try again.', [
+            {text: 'OK'},
+          ]);
+        }
+      } else {
+        Alert.alert('Error', 'Failed to create tour. Please try again.', [
+          {text: 'OK'},
+        ]);
+      }
+    },
+  });
+
   const handleSubmit = async () => {
     // Validation
     const hasValidInclude = formData.includes.some(
@@ -227,7 +302,7 @@ const CreateTourScreen = () => {
       description: !formData.description[contentLanguage],
       images: formData.files.length === 0,
       includes: !hasValidInclude,
-      price: !formData.price || formData.price <= 0,
+      price: !formData.price || parseFloat(formData.price) <= 0,
       seats: !formData.seats || formData.seats <= 0,
       tourDate: !formData.start_date,
     };
@@ -235,17 +310,8 @@ const CreateTourScreen = () => {
     if (Object.values(newErrors).some(Boolean)) {
       return;
     }
-    try {
-      console.log(formData);
-      await apiRequest('/admin/tour/create', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formData),
-      });
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error creating tour:', error);
-    }
+
+    createTourMutation.mutate(formData);
   };
 
   const handlePreviewImage = (url: string) => {
@@ -457,9 +523,9 @@ const CreateTourScreen = () => {
                     styles.input,
                     errors.price && {borderColor: theme.colors.error},
                   ]}
-                  value={formData.price.toString()}
+                  value={formData.price}
                   onChangeText={text => {
-                    setFormData({...formData, price: parseFloat(text) || 0});
+                    setFormData({...formData, price: text});
                     if (errors.price) setErrors({...errors, price: false});
                   }}
                   keyboardType="numeric"
@@ -475,11 +541,11 @@ const CreateTourScreen = () => {
                 <Text style={styles.inputLabel}>{t('tour.salePrice')}</Text>
                 <TextInput
                   style={styles.input}
-                  value={formData.sale_price.toString()}
+                  value={formData.sale_price}
                   onChangeText={text =>
                     setFormData({
                       ...formData,
-                      sale_price: parseFloat(text) || 0,
+                      sale_price: text,
                     })
                   }
                   keyboardType="numeric"
@@ -652,10 +718,16 @@ const CreateTourScreen = () => {
           {/* Sticky Create Tour Button */}
           <View style={styles.stickyButtonContainer}>
             <TouchableOpacity
-              style={styles.createTourButton}
-              onPress={handleSubmit}>
+              style={[
+                styles.createTourButton,
+                createTourMutation.isPending && styles.createTourButtonDisabled,
+              ]}
+              onPress={handleSubmit}
+              disabled={createTourMutation.isPending}>
               <Text style={styles.createTourButtonText}>
-                {t('common.createTour')}
+                {createTourMutation.isPending
+                  ? 'Creating...'
+                  : t('common.createTour')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -940,6 +1012,9 @@ const styles = StyleSheet.create({
   errorBorder: {
     borderColor: theme.colors.error,
     borderWidth: 2,
+  },
+  createTourButtonDisabled: {
+    opacity: 0.7,
   },
 });
 
