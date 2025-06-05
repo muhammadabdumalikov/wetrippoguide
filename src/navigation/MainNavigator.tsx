@@ -2,9 +2,9 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/main/HomeScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
-import CreateTourScreen from '../screens/main/CreateTourScreen';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {theme} from '../theme/theme';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +17,7 @@ const MainNavigator = () => {
           backgroundColor: theme.colors.background,
           paddingTop: 5,
         },
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: theme.colors.secondary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
       }}>
       <Tab.Screen
@@ -25,18 +25,8 @@ const MainNavigator = () => {
         component={HomeScreen}
         options={{
           tabBarIcon: ({color, size}) => (
-            <AntDesign name="home" size={size} color={color} />
+            <Ionicons name="earth-outline" size={size} color={color} />
           ),
-        }}
-      />
-      <Tab.Screen
-        name="CreateTour"
-        component={CreateTourScreen}
-        options={{
-          tabBarIcon: ({color, size}) => (
-            <AntDesign name="pluscircle" size={size} color={color} />
-          ),
-          tabBarLabel: 'Create Tour',
         }}
       />
       <Tab.Screen

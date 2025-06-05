@@ -12,6 +12,7 @@ import LanguageScreen from '../screens/settings/LanguageScreen';
 import LanguageSettingsScreen from '../screens/settings/LanguageSettingsScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
+import CreateTourScreen from '../screens/main/CreateTourScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,6 +38,7 @@ const AppNavigator = () => {
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Main" component={MainNavigator} />
+            <Stack.Screen name="CreateTour" component={CreateTourScreen} />
             <Stack.Screen
               name="Notifications"
               component={NotificationsScreen}

@@ -3,17 +3,22 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import {Text} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {theme} from '../../theme/theme';
 import TourCard from './TourCard';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome6';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../navigation/types';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = width - theme.spacing.lg * 2;
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface Tour {
   id: string;
@@ -55,9 +60,9 @@ const mockTours: Tour[] = [
   },
 ];
 
-const fabColor = '#2979ff';
-
 const HomeScreen = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
@@ -73,9 +78,11 @@ const HomeScreen = () => {
         ))}
       </ScrollView>
 
-      <TouchableOpacity style={[styles.fab, {backgroundColor: fabColor}]}>
-        <FontAwesome name="globe" size={28} color={'#fff'} />
-      </TouchableOpacity>
+      <Pressable
+        style={[styles.fab, {backgroundColor: theme.colors.primary}]}
+        onPress={() => navigation.navigate('CreateTour')}>
+        <Icon name="add" size={28} color={theme.colors.white} />
+      </Pressable>
     </SafeAreaView>
   );
 };

@@ -19,6 +19,8 @@ import {theme} from '../../theme/theme';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../navigation/types';
 import {useTranslation} from 'react-i18next';
 import {useContentLanguage} from '../../localization/ContentLanguageContext';
 import Modal from 'react-native-modal';
@@ -79,7 +81,8 @@ const slotWidth = (windowWidth - theme.spacing.lg * 2 - theme.spacing.md) / 2;
 const slotHeight = slotWidth * 0.8;
 
 const CreateTourScreen = () => {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {t} = useTranslation();
   const {contentLanguage, setContentLanguage} = useContentLanguage();
 
@@ -88,8 +91,8 @@ const CreateTourScreen = () => {
     description: {en: '', uz: '', ru: ''},
     status: 1,
     location: 0,
-    price: '0',
-    sale_price: '0',
+    price: '',
+    sale_price: '',
     duration: '',
     start_date: '',
     seats: 0,
@@ -111,6 +114,7 @@ const CreateTourScreen = () => {
     seats: false,
     tourDate: false,
   });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const addRoutePoint = () => {
     setFormData({
@@ -268,7 +272,7 @@ const CreateTourScreen = () => {
       return response;
     },
     onSuccess: () => {
-      navigation.goBack();
+      setShowSuccessModal(true);
     },
     onError: (error: any) => {
       if (error.response?.data) {
@@ -321,6 +325,15 @@ const CreateTourScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color={theme.colors.text} />
+        </Pressable>
+        <Text style={styles.headerTitle}>{t('common.createTour')}</Text>
+        <View style={styles.headerRight} />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
@@ -764,6 +777,37 @@ const CreateTourScreen = () => {
             </TouchableOpacity>
           </View>
         </Modal>
+
+        {/* Success Modal */}
+        <Modal
+          isVisible={showSuccessModal}
+          backdropOpacity={0.5}
+          animationIn="zoomIn"
+          animationOut="zoomOut"
+          onBackdropPress={() => {
+            setShowSuccessModal(false);
+            navigation.goBack();
+          }}
+          useNativeDriver>
+          <View style={modalStyles.modalContainer}>
+            <View style={modalStyles.iconCircle}>
+              <Icon name="checkmark-circle" size={64} color="#2ecc71" />
+            </View>
+            <Text style={modalStyles.title}>Tour Created Successfully!</Text>
+            <Text style={modalStyles.subtitle}>
+              Now you can sit back, relax, and anticipate your upcoming travel
+              experience
+            </Text>
+            <Pressable
+              style={modalStyles.ticketButton}
+              onPress={() => {
+                setShowSuccessModal(false);
+                navigation.goBack();
+              }}>
+              <Text style={modalStyles.ticketButtonText}>Back to Home</Text>
+            </Pressable>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -852,7 +896,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     borderWidth: 1,
     borderColor: theme.colors.lightGray,
     padding: theme.spacing.md,
@@ -1015,6 +1059,74 @@ const styles = StyleSheet.create({
   },
   createTourButtonDisabled: {
     opacity: 0.7,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+  },
+  backButton: {
+    padding: theme.spacing.sm,
+  },
+  headerTitle: {
+    ...theme.typography.h2,
+    color: theme.colors.text,
+    fontWeight: '700',
+  },
+  headerRight: {
+    width: 40, // To balance the back button
+  },
+});
+
+const modalStyles = StyleSheet.create({
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderRadius: theme.borderRadius.xxl,
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  iconCircle: {
+    backgroundColor: '#eafaf1',
+    borderRadius: theme.borderRadius.circle,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#888',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  ticketButton: {
+    backgroundColor: '#FF5A3C',
+    borderRadius: theme.borderRadius.circle,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    width: '100%',
+    alignItems: 'center',
+  },
+  ticketButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: 'bold',
   },
 });
 

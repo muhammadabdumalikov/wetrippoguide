@@ -1,14 +1,16 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { SettingsStackParamList } from './types';
+import { MainStackParamList } from './types';
 
 export type RootStackParamList = {
-  Main: undefined;
+  Main: NavigatorScreenParams<MainStackParamList>;
   SignIn: undefined;
   SignUp: undefined;
   Notifications: undefined;
   Security: undefined;
   Language: undefined;
   LanguageSettings: undefined;
+  CreateTour: undefined;
 };
 
 export type SettingsStackParamList = {
@@ -27,5 +29,4 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   Home: undefined;
   Profile: undefined;
-  CreateTour: undefined;
 }; 

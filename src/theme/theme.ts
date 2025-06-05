@@ -2,7 +2,7 @@ import { TextStyle } from 'react-native';
 
 export const theme = {
   colors: {
-    primary: '#4F6EF7', // Soft blue accent
+    primary: '#050544', // Navy Black
     secondary: '#F7B500', // Orange for main action
     background: '#F7F7F7', // Light gray background
     surface: '#FFFFFF', // Card background
@@ -48,10 +48,11 @@ export const theme = {
     } as TextStyle,
   },
   borderRadius: {
-    sm: 8,
-    md: 12,
-    lg: 16,
-    xl: 24,
+    sm: 4,
+    md: 8,
+    lg: 12,
+    xl: 16,
+    xxl: 24,
     circle: 9999,
   },
   shadows: {

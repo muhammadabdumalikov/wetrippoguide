@@ -97,14 +97,16 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     aspectRatio: 1.3,
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     overflow: 'hidden',
     position: 'relative',
   },
   cardImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     resizeMode: 'cover',
   },
   cardContent: {
