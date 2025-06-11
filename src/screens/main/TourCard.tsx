@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 0,
-    gap: 10,
+    // gap: 10,
   },
   ratingBadge: {
     flexDirection: 'row',

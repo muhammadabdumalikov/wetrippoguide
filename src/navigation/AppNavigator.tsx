@@ -13,32 +13,32 @@ import LanguageSettingsScreen from '../screens/settings/LanguageSettingsScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import CreateTourScreen from '../screens/main/CreateTourScreen';
+import EditTourScreen from '../screens/main/EditTourScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
-  const {isAuthenticated, checkAuthStatus} = useAuth();
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const init = async () => {
-      await checkAuthStatus();
-      setIsLoading(false);
-    };
-    init();
-  }, [checkAuthStatus]);
+  const {isLoading, isAuthenticated} = useAuth();
+  console.log('isAuthenticated', isAuthenticated);
 
   if (isLoading) {
-    return <LoadingScreen message="Checking authentication..." />;
+    return <LoadingScreen />;
   }
 
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-        {isAuthenticated ? (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}>
+        {!isAuthenticated ? (
+          <>
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+          </>
+        ) : (
           <>
             <Stack.Screen name="Main" component={MainNavigator} />
-            <Stack.Screen name="CreateTour" component={CreateTourScreen} />
             <Stack.Screen
               name="Notifications"
               component={NotificationsScreen}
@@ -49,11 +49,8 @@ const AppNavigator = () => {
               name="LanguageSettings"
               component={LanguageSettingsScreen}
             />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="SignIn" component={SignInScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="CreateTour" component={CreateTourScreen} />
+            <Stack.Screen name="EditTour" component={EditTourScreen} />
           </>
         )}
       </Stack.Navigator>

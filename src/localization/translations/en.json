@@ -1,6 +1,7 @@
 {
   "common": {
     "createTour": "Create New Tour",
+    "editTour": "Edit Tour",
     "back": "Back",
     "save": "Save",
     "cancel": "Cancel",

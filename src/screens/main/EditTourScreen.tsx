@@ -81,14 +81,14 @@ const slotWidth = (windowWidth - theme.spacing.lg * 2 - theme.spacing.md) / 2;
 const slotHeight = slotWidth * 0.8;
 
 // For edit mode
-type CreateTourScreenRouteProp = {
+type EditTourScreenRouteProp = {
   params?: {tourId?: string; tour?: any};
 };
 
-const CreateTourScreen = () => {
+const EditTourScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute() as CreateTourScreenRouteProp;
+  const route = useRoute() as EditTourScreenRouteProp;
   const {t} = useTranslation();
   const {contentLanguage, setContentLanguage} = useContentLanguage();
 
@@ -355,7 +355,7 @@ const CreateTourScreen = () => {
           onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>{t('common.createTour')}</Text>
+        <Text style={styles.headerTitle}>{t('common.editTour')}</Text>
         <View style={styles.headerRight} />
       </View>
       <KeyboardAvoidingView
@@ -757,14 +757,14 @@ const CreateTourScreen = () => {
             <TouchableOpacity
               style={[
                 styles.createTourButton,
-                createTourMutation.isPending && styles.createTourButtonDisabled,
+                styles.createTourButtonDisabled,
               ]}
               onPress={handleSubmit}
-              disabled={createTourMutation.isPending}>
+              disabled={true}>
               <Text style={styles.createTourButtonText}>
                 {createTourMutation.isPending
-                  ? 'Creating...'
-                  : t('common.createTour')}
+                  ? 'Editing...'
+                  : t('common.editTour')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1154,4 +1154,4 @@ const modalStyles = StyleSheet.create({
   },
 });
 
-export default CreateTourScreen;
+export default EditTourScreen;

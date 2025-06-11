@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  Pressable,
-} from 'react-native';
+import {View, StyleSheet, FlatList, Dimensions, Pressable} from 'react-native';
 import {Text} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {theme} from '../../theme/theme';
@@ -14,6 +8,8 @@ import Icon from 'react-native-vector-icons/FontAwesome6';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
+import {useQuery} from '@tanstack/react-query';
+import {apiRequest} from '../../utils/api';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = width - theme.spacing.lg * 2;
@@ -33,50 +29,78 @@ interface Tour {
   image: string;
 }
 
-const mockTours: Tour[] = [
-  {
-    id: '1',
-    title: 'Summer Adventure in Bali',
-    destination: 'Bali, Indonesia',
-    startDate: '2024-06-15T14:30:00',
-    endDate: '2024-06-22',
-    totalSpots: 20,
-    availableSpots: 5,
-    price: 1299,
-    status: 'ongoing',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
-  },
-  {
-    id: '2',
-    title: 'European Explorer',
-    destination: 'Paris, France',
-    startDate: '2024-07-01T09:00:00',
-    endDate: '2024-07-10',
-    totalSpots: 15,
-    availableSpots: 3,
-    price: 2499,
-    status: 'ongoing',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
-  },
-];
+const fetchTours = async () => {
+  const res = await apiRequest('/admin/tour/list', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      limit: 0,
+      offset: 0,
+      search: '',
+      status: ['2'],
+    }),
+  });
+  return res;
+};
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const {data, isLoading, isError} = useQuery({
+    queryKey: ['tours', 'ongoing'],
+    queryFn: fetchTours,
+  });
 
+  let tours: Tour[] = [];
+  if (data && Array.isArray(data.data)) {
+    tours = data.data.map((item: any) => ({
+      id: item.id,
+      title: item.title?.en || item.title || '',
+      destination: '',
+      startDate: item.start_date,
+      endDate: item.end_date,
+      totalSpots: item.seats,
+      availableSpots: item.available_seats ?? item.seats,
+      price: Math.floor(Number(item.price)),
+      status: 'ongoing',
+      image:
+        item.files?.find((f: any) => f.type === 'main')?.url ||
+        (item.files?.[0]?.url ?? ''),
+    }));
+  }
+  console.log(tours);
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ongoing Tours</Text>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        {mockTours.map(tour => (
-          <TourCard key={tour.id} tour={tour} />
-        ))}
-      </ScrollView>
+      {isLoading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text>Loading...</Text>
+        </View>
+      ) : isError ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text>Error loading tours.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={tours}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.scrollContent}
+          renderItem={({item}) => (
+            <TourCard
+              tour={item}
+              onPress={() =>
+                navigation.navigate('EditTour', {
+                  tourId: item.id,
+                  tour: item,
+                })
+              }
+            />
+          )}
+          ListEmptyComponent={<Text>No ongoing tours found.</Text>}
+        />
+      )}
 
       <Pressable
         style={[styles.fab, {backgroundColor: theme.colors.primary}]}

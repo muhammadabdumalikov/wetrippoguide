@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
   },
   infoCard: {
-    backgroundColor: theme.colors.primaryLight,
+    backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.xl,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   selectedLanguage: {
-    backgroundColor: theme.colors.primaryLight,
+    backgroundColor: theme.colors.primary,
   },
   languageInfo: {
     flexDirection: 'row',

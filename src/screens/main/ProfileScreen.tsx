@@ -10,23 +10,21 @@ import {Text, Avatar, ListItem} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {theme} from '../../theme/theme';
-import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {
-  RootStackParamList,
-  SettingsStackParamList,
-} from '../../navigation/types';
+import {RootStackParamList} from '../../navigation/types';
 import {useAuth} from '../../context/AuthContext';
+import Switch from '../../components/Switch';
+import {useState} from 'react';
 import {navigationRef} from '../../navigation/navigationRef';
 
-type ProfileScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<RootStackParamList>,
-  NativeStackNavigationProp<SettingsStackParamList>
->;
+type ProfileScreenNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 const ProfileScreen = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const {logout} = useAuth();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -42,17 +40,14 @@ const ProfileScreen = () => {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            const tryReset = () => {
-              if (navigationRef.isReady()) {
-                navigationRef.reset({
+            if (navigationRef.isReady()) {
+              navigationRef.dispatch(
+                CommonActions.reset({
                   index: 0,
-                  routes: [{name: 'Auth'}],
-                });
-              } else {
-                setTimeout(tryReset, 50);
-              }
-            };
-            tryReset();
+                  routes: [{name: 'SignIn'}],
+                }),
+              );
+            }
           },
         },
       ],
@@ -76,7 +71,7 @@ const ProfileScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Information</Text>
-          <ListItem containerStyle={styles.listItem}>
+          <ListItem containerStyle={styles.listItem} key="email">
             <Icon name="email" size={24} color={theme.colors.primary} />
             <ListItem.Content>
               <ListItem.Title style={styles.listItemTitle}>
@@ -88,7 +83,7 @@ const ProfileScreen = () => {
             </ListItem.Content>
           </ListItem>
 
-          <ListItem containerStyle={styles.listItem}>
+          <ListItem containerStyle={styles.listItem} key="phone">
             <Icon name="phone" size={24} color={theme.colors.primary} />
             <ListItem.Content>
               <ListItem.Title style={styles.listItemTitle}>
@@ -103,21 +98,20 @@ const ProfileScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          <ListItem
-            containerStyle={styles.listItem}
-            onPress={() => navigation.navigate('Notifications')}>
-            <Icon name="notifications" size={24} color={theme.colors.primary} />
-            <ListItem.Content>
-              <ListItem.Title style={styles.listItemTitle}>
-                Notifications
-              </ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>Enable Notifications</Text>
+            <Switch
+              activeColor={theme.colors.secondary}
+              inActiveColor={theme.colors.lightGray}
+              handleOnChange={() => setNotificationsEnabled(prev => !prev)}
+              isActive={notificationsEnabled}
+            />
+          </View>
 
           <ListItem
             containerStyle={styles.listItem}
-            onPress={() => navigation.navigate('Security')}>
+            onPress={() => navigation.navigate('Security')}
+            key="security">
             <Icon name="security" size={24} color={theme.colors.primary} />
             <ListItem.Content>
               <ListItem.Title style={styles.listItemTitle}>
@@ -129,7 +123,8 @@ const ProfileScreen = () => {
 
           <ListItem
             containerStyle={styles.listItem}
-            onPress={() => navigation.navigate('Language')}>
+            onPress={() => navigation.navigate('Language')}
+            key="language">
             <Icon name="language" size={24} color={theme.colors.primary} />
             <ListItem.Content>
               <ListItem.Title style={styles.listItemTitle}>
@@ -206,6 +201,21 @@ const styles = StyleSheet.create({
     ...theme.typography.body,
     color: theme.colors.error,
     marginLeft: theme.spacing.sm,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.sm,
+  },
+  settingLabel: {
+    fontSize: 16,
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });
 

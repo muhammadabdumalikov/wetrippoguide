@@ -3,6 +3,7 @@ import {getItem, clearStorage, StorageKeys} from '../utils/storage';
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isLoading: boolean;
   checkAuthStatus: () => Promise<void>;
   logout: () => void;
 }
@@ -13,6 +14,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkAuthStatus = async () => {
     try {
@@ -21,6 +23,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     } catch (error) {
       console.error('Error checking auth status:', error);
       setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,7 +42,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{isAuthenticated, checkAuthStatus, logout}}>
+    <AuthContext.Provider
+      value={{isAuthenticated, isLoading, checkAuthStatus, logout}}>
       {children}
     </AuthContext.Provider>
   );

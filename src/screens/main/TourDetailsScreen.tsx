@@ -80,15 +80,14 @@ const windowWidth = Dimensions.get('window').width;
 const slotWidth = (windowWidth - theme.spacing.lg * 2 - theme.spacing.md) / 2;
 const slotHeight = slotWidth * 0.8;
 
-// For edit mode
-type CreateTourScreenRouteProp = {
-  params?: {tourId?: string; tour?: any};
+type EditTourScreenRouteProp = {
+  params: {tourId: string; tour: any};
 };
 
-const CreateTourScreen = () => {
+const EditTourScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute() as CreateTourScreenRouteProp;
+  const route = useRoute() as EditTourScreenRouteProp;
   const {t} = useTranslation();
   const {contentLanguage, setContentLanguage} = useContentLanguage();
 
@@ -122,7 +121,7 @@ const CreateTourScreen = () => {
   });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // If editing, prefill formData
+  // Prefill formData with tour data
   useEffect(() => {
     if (route.params?.tour) {
       const t = route.params.tour;
@@ -141,46 +140,6 @@ const CreateTourScreen = () => {
       }));
     }
   }, [route.params]);
-
-  const addRoutePoint = () => {
-    setFormData({
-      ...formData,
-      route_json: [...formData.route_json, {title: '', description: ''}],
-    });
-  };
-
-  const updateRoutePoint = (
-    index: number,
-    field: 'title' | 'description',
-    value: string,
-  ) => {
-    const newRoute = [...formData.route_json];
-    newRoute[index] = {...newRoute[index], [field]: value};
-    setFormData({...formData, route_json: newRoute});
-  };
-
-  const addInclude = () => {
-    setFormData({
-      ...formData,
-      includes: [
-        ...formData.includes,
-        {title: {en: '', uz: '', ru: ''}, included: true},
-      ],
-    });
-  };
-
-  const updateInclude = (
-    index: number,
-    field: 'en' | 'uz' | 'ru',
-    value: string,
-  ) => {
-    const newIncludes = [...formData.includes];
-    newIncludes[index] = {
-      ...newIncludes[index],
-      title: {...newIncludes[index].title, [field]: value},
-    };
-    setFormData({...formData, includes: newIncludes});
-  };
 
   const handleFileUpload = async () => {
     if (formData.files.length >= MAX_IMAGES) return;
@@ -201,7 +160,6 @@ const CreateTourScreen = () => {
           const asset = response.assets && response.assets[0];
           if (asset && asset.uri) {
             try {
-              // Create form data for file upload
               const uploadFormData = new FormData();
               uploadFormData.append('file', {
                 uri: asset.uri,
@@ -209,7 +167,6 @@ const CreateTourScreen = () => {
                 name: asset.fileName || `image_${Date.now()}.jpg`,
               });
 
-              // Upload file to server
               const uploadResponse = await apiRequest(
                 '/file-router/simple-upload',
                 {
@@ -230,7 +187,7 @@ const CreateTourScreen = () => {
                   url: uploadResponse.url,
                   name: uploadResponse.name,
                   size: uploadResponse.size,
-                  isMain: formData.files.length === 0, // First image is main by default
+                  isMain: formData.files.length === 0,
                 };
                 setFormData(prevData => ({
                   ...prevData,
@@ -286,13 +243,16 @@ const CreateTourScreen = () => {
     });
   };
 
-  const createTourMutation = useMutation({
+  const updateTourMutation = useMutation({
     mutationFn: async (tourData: TourFormData) => {
-      const response = await apiRequest('/admin/tour/create', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(tourData),
-      });
+      const response = await apiRequest(
+        `/admin/tour/update/${route.params.tourId}`,
+        {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(tourData),
+        },
+      );
       return response;
     },
     onSuccess: () => {
@@ -308,12 +268,12 @@ const CreateTourScreen = () => {
         } else if (errorData.message) {
           Alert.alert('Error', errorData.message, [{text: 'OK'}]);
         } else {
-          Alert.alert('Error', 'Failed to create tour. Please try again.', [
+          Alert.alert('Error', 'Failed to update tour. Please try again.', [
             {text: 'OK'},
           ]);
         }
       } else {
-        Alert.alert('Error', 'Failed to create tour. Please try again.', [
+        Alert.alert('Error', 'Failed to update tour. Please try again.', [
           {text: 'OK'},
         ]);
       }
@@ -339,12 +299,49 @@ const CreateTourScreen = () => {
       return;
     }
 
-    createTourMutation.mutate(formData);
+    updateTourMutation.mutate(formData);
   };
 
   const handlePreviewImage = (url: string) => {
     setPreviewImage(url);
     setPreviewVisible(true);
+  };
+
+  const addRoutePoint = () => {
+    setFormData(prev => ({
+      ...prev,
+      route_json: [...prev.route_json, {title: '', description: ''}],
+    }));
+  };
+
+  const updateRoutePoint = (
+    index: number,
+    field: 'title' | 'description',
+    value: string,
+  ) => {
+    const newRoute = [...formData.route_json];
+    newRoute[index][field] = value;
+    setFormData({...formData, route_json: newRoute});
+  };
+
+  const addInclude = () => {
+    setFormData(prev => ({
+      ...prev,
+      includes: [
+        ...prev.includes,
+        {title: {en: '', uz: '', ru: ''}, included: true},
+      ],
+    }));
+  };
+
+  const updateInclude = (
+    index: number,
+    lang: 'en' | 'uz' | 'ru',
+    value: string,
+  ) => {
+    const newIncludes = [...formData.includes];
+    newIncludes[index].title[lang] = value;
+    setFormData({...formData, includes: newIncludes});
   };
 
   return (
@@ -355,7 +352,7 @@ const CreateTourScreen = () => {
           onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>{t('common.createTour')}</Text>
+        <Text style={styles.headerTitle}>{t('common.editTour')}</Text>
         <View style={styles.headerRight} />
       </View>
       <KeyboardAvoidingView
@@ -392,7 +389,6 @@ const CreateTourScreen = () => {
                             const newFiles = formData.files.filter(
                               (_, idx) => idx !== i,
                             );
-                            // If we're deleting the main image, make the first remaining image the main one
                             if (file.isMain && newFiles.length > 0) {
                               newFiles[0].isMain = true;
                             }
@@ -750,21 +746,19 @@ const CreateTourScreen = () => {
             ))}
           </View>
 
-          {/* <View style={{height: theme.spacing.xl}} /> */}
-
-          {/* Sticky Create Tour Button */}
+          {/* Sticky Update Tour Button */}
           <View style={styles.stickyButtonContainer}>
             <TouchableOpacity
               style={[
                 styles.createTourButton,
-                createTourMutation.isPending && styles.createTourButtonDisabled,
+                updateTourMutation.isPending && styles.createTourButtonDisabled,
               ]}
               onPress={handleSubmit}
-              disabled={createTourMutation.isPending}>
+              disabled={updateTourMutation.isPending}>
               <Text style={styles.createTourButtonText}>
-                {createTourMutation.isPending
-                  ? 'Creating...'
-                  : t('common.createTour')}
+                {updateTourMutation.isPending
+                  ? 'Updating...'
+                  : t('common.updateTour')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -817,10 +811,9 @@ const CreateTourScreen = () => {
             <View style={modalStyles.iconCircle}>
               <Icon name="checkmark-circle" size={64} color="#2ecc71" />
             </View>
-            <Text style={modalStyles.title}>Tour Created Successfully!</Text>
+            <Text style={modalStyles.title}>Tour Updated Successfully!</Text>
             <Text style={modalStyles.subtitle}>
-              Now you can sit back, relax, and anticipate your upcoming travel
-              experience
+              Your tour has been updated successfully
             </Text>
             <Pressable
               style={modalStyles.ticketButton}
@@ -919,84 +912,67 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   input: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.sm,
     borderWidth: 1,
-    borderColor: theme.colors.lightGray,
-    padding: theme.spacing.md,
-    ...theme.typography.body,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm,
     color: theme.colors.text,
-  },
-  inputText: {
-    ...theme.typography.body,
-    color: theme.colors.text,
+    backgroundColor: theme.colors.surface,
   },
   textArea: {
-    height: 100,
+    minHeight: 100,
     textAlignVertical: 'top',
   },
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputGroupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
   },
   addButton: {
     padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.circle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deleteButton: {
-    alignSelf: 'flex-end',
-    padding: theme.spacing.xs,
-    marginTop: -theme.spacing.md,
-    marginBottom: theme.spacing.md,
   },
   routePointCard: {
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.md,
   },
   routePointHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
   routeDeleteButton: {
     padding: theme.spacing.xs,
-    marginLeft: theme.spacing.sm,
   },
   includeItem: {
-    backgroundColor: theme.colors.white,
+    backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-  },
-  inputGroupRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
   },
   includeDeleteButton: {
-    marginLeft: theme.spacing.sm,
     padding: theme.spacing.xs,
   },
   languageSelectorRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
   },
   langButton: {
-    flex: 1,
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    alignItems: 'center',
     borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.white,
     marginHorizontal: theme.spacing.xs,
+    backgroundColor: theme.colors.surface,
   },
   activeLang: {
-    backgroundColor: theme.colors.secondary,
+    backgroundColor: theme.colors.primary,
   },
   langText: {
     ...theme.typography.body,
@@ -1007,12 +983,7 @@ const styles = StyleSheet.create({
     color: theme.colors.surface,
   },
   stickyButtonContainer: {
-    // position: 'absolute',
-    // left: 0,
-    // right: 0,
-    // bottom: 0,
     backgroundColor: theme.colors.background,
-    // padding: theme.spacing.lg,
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
   },
@@ -1105,6 +1076,10 @@ const styles = StyleSheet.create({
   headerRight: {
     width: 40, // To balance the back button
   },
+  inputText: {
+    color: theme.colors.text,
+    fontSize: 16,
+  },
 });
 
 const modalStyles = StyleSheet.create({
@@ -1154,4 +1129,4 @@ const modalStyles = StyleSheet.create({
   },
 });
 
-export default CreateTourScreen;
+export default EditTourScreen;
