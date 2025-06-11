@@ -5,7 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   checkAuthStatus: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,13 +28,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const logout = () => {
-    clearStorage();
-    setTimeout(() => {
-      const token = getItem(StorageKeys.ACCESS_TOKEN);
-      console.log('Access token after logout:', token);
-    }, 100);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      await clearStorage();
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still set authenticated to false even if there's an error
+      setIsAuthenticated(false);
+    }
   };
 
   useEffect(() => {

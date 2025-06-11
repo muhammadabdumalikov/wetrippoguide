@@ -10,13 +10,12 @@ import {Text, Avatar, ListItem} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {theme} from '../../theme/theme';
-import {useNavigation, CommonActions} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
 import {useAuth} from '../../context/AuthContext';
 import Switch from '../../components/Switch';
 import {useState} from 'react';
-import {navigationRef} from '../../navigation/navigationRef';
 
 type ProfileScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
@@ -40,14 +39,8 @@ const ProfileScreen = () => {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            if (navigationRef.isReady()) {
-              navigationRef.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{name: 'SignIn'}],
-                }),
-              );
-            }
+            // The AppNavigator will automatically show SignIn screen
+            // when isAuthenticated becomes false
           },
         },
       ],

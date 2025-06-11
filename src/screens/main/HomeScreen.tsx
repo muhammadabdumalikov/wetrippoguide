@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, FlatList, Dimensions, Pressable} from 'react-native';
+import {View, StyleSheet, FlatList, Pressable} from 'react-native';
 import {Text} from 'react-native-elements';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {theme} from '../../theme/theme';
@@ -10,9 +10,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
 import {useQuery} from '@tanstack/react-query';
 import {apiRequest} from '../../utils/api';
-
-const {width} = Dimensions.get('window');
-const CARD_WIDTH = width - theme.spacing.lg * 2;
+import LoadingScreen from '../../components/LoadingScreen';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -67,7 +65,7 @@ const HomeScreen = () => {
         (item.files?.[0]?.url ?? ''),
     }));
   }
-  console.log(tours);
+
   return (
     <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
@@ -75,12 +73,10 @@ const HomeScreen = () => {
       </View>
 
       {isLoading ? (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>Loading...</Text>
-        </View>
+        <LoadingScreen />
       ) : isError ? (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>Error loading tours.</Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error loading tours.</Text>
         </View>
       ) : (
         <FlatList
@@ -98,7 +94,11 @@ const HomeScreen = () => {
               }
             />
           )}
-          ListEmptyComponent={<Text>No ongoing tours found.</Text>}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No ongoing tours found.</Text>
+            </View>
+          }
         />
       )}
 
@@ -117,142 +117,53 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.background,
+    padding: theme.spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
   headerTitle: {
-    ...theme.typography.h1,
+    ...theme.typography.h2,
     color: theme.colors.text,
-  },
-  scrollView: {
-    flex: 1,
   },
   scrollContent: {
     padding: theme.spacing.lg,
   },
-  card: {
-    width: CARD_WIDTH,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    overflow: 'hidden',
-    padding: 0,
-    shadowColor: 'transparent',
-    elevation: 0,
-  },
-  imageContainer: {
-    width: '100%',
-    aspectRatio: 1.3,
-    borderRadius: 20,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 20,
-    resizeMode: 'cover',
-  },
-  cardContent: {
-    paddingHorizontal: 10,
-    paddingTop: 16,
-    paddingBottom: 18,
-    backgroundColor: '#fff',
-  },
-  tourInfo: {
-    marginBottom: 16,
-    gap: 8,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  infoText: {
-    color: '#8A8A8A',
-    fontSize: 14,
-    fontWeight: '400',
-  },
-  title: {
-    color: '#222',
-    fontWeight: '700',
-    fontSize: 22,
-    marginBottom: 16,
-    textAlign: 'left',
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 0,
-    gap: 10,
-  },
-  ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    marginRight: 10,
-  },
-  ratingText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    marginLeft: 4,
-    fontSize: 15,
-  },
-  priceText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginRight: 4,
-  },
-  perPerson: {
-    color: '#8A8A8A',
-    fontSize: 14,
-    fontWeight: '400',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E5E5',
-    marginVertical: theme.spacing.md,
-    width: CARD_WIDTH,
-  },
-  infoBadgesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 16,
-  },
-  infoBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginRight: 8,
-  },
-  infoBadgeText: {
-    fontWeight: '600',
-    fontSize: 14,
-  },
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 32,
+    bottom: theme.spacing.lg,
+    right: theme.spacing.lg,
     width: 56,
     height: 56,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 6,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  },
+  errorText: {
+    ...theme.typography.body,
+    color: theme.colors.error,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  },
+  emptyText: {
+    ...theme.typography.body,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
   },
 });
 
